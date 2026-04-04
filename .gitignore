@@ -1,0 +1,44 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Large outputs / runs
+runs*/
+runs_tvb_be_sigma/
+runs_tvb_scan_bo/
+results/
+tmp*/
+wave_debug/
+
+# Data artifacts (adjust if you really want to track some)
+*.npy
+*.npz
+*.pkl
+*.h5
+*.mat
+*.log
+
+# Virtual envs
+venv/
+tvb_py*/
+# === Allow lightweight result files (CSV) ===
+!results/**/*.csv
+!runs_tvb_be_sigma/**/*.csv
+!runs_tvb_scan_bo/**/*.csv
+!data/**/*.csv
+
+# PyCharm / IntelliJ
+.idea/
+
+# Virtual env (your folder is .venv)
+.venv/
+
+# Outputs (your actual folder names)
+result/
+postprocess_out/
+postprocess_psd_out/
+tvb_adex_ref/postprocess/postprocess_out/
