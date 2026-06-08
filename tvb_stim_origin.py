@@ -1,5 +1,3 @@
-#此脚本是5月19日复制，下一步是新建了build_stim_waveform.py文件，想要修改该脚本的刺激模式，该脚本是最初的控制刺激的地方
-#理想情况下，修改后将废弃最初的控制刺激的办法
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -1566,9 +1564,6 @@ def tvb_sim_single_ve_with_sync(
     sync_hi: float = 4.0,
     sync_use_bandpass: bool = True,
     dump_params_only: bool = False,
-#------zyz修改--------
-    stim_times=None,
-#-----------------------
 ) -> dict:
     print("🔥 ENTER WITH_SYNC FUNCTION")
 
@@ -1580,11 +1575,6 @@ def tvb_sim_single_ve_with_sync(
     """
 
     parameters = get_base_parameters()
-
-    #-------------zyz修改，检测加入刺激的时间----------------
-    import copy
-    parameters = copy.deepcopy(parameters)
-    #------------------------------------------------
     pm = parameters.parameter_model
     pc = parameters.parameter_coupling
 
@@ -1646,36 +1636,19 @@ def tvb_sim_single_ve_with_sync(
     parameters.parameter_simulation["path_result"] = str(folder)
     #zyz修改0413，以前是关闭刺激
     # 关闭刺激
-    parameters.parameter_stimulus["tau"] = 1e9
-    parameters.parameter_stimulus["T"] = 1e9
-    parameters.parameter_stimulus["weights"] = [0.0] * nregions
-    parameters.parameter_stimulus["variables"] = [0]
-    parameters.parameter_stimulus["onset"] = 1e9
-    #打开刺激
-    # parameters.parameter_stimulus["tau"] = 1.0
+    # parameters.parameter_stimulus["tau"] = 1e9
     # parameters.parameter_stimulus["T"] = 1e9
-    # weights = [0.0] * nregions #zyz修改，设定强度为0.5
-    # weights[region_idx] = 0.0009
-    # parameters.parameter_stimulus["weights"] = weights
+    # parameters.parameter_stimulus["weights"] = [0.0] * nregions
     # parameters.parameter_stimulus["variables"] = [0]
-    #parameters.parameter_stimulus["onset"] = 5000
-    #zyz修改，以前是onset=5000------------------------------
-    if stim_times is not None and len(stim_times) > 0:
-
-        parameters.parameter_stimulus["onset"] = float(stim_times[0])
-
-        print()
-        print("USING PHASE-LOCKED STIMULATION")
-        print("stim onset =", stim_times[0])
-
-    else:
-
-        parameters.parameter_stimulus["onset"] = 5000
-
-        print()
-        print("USING DEFAULT STIMULATION")
-        print("stim onset = 5000 ms")
-#----------------------------------------------------------------------------
+    # parameters.parameter_stimulus["onset"] = 1e9
+    #打开刺激
+    parameters.parameter_stimulus["tau"] = 1.0
+    parameters.parameter_stimulus["T"] = 1e9
+    weights = [0.0] * nregions #zyz修改，设定强度为0.5
+    weights[region_idx] = 0.0006
+    parameters.parameter_stimulus["weights"] = weights
+    parameters.parameter_stimulus["variables"] = [0]
+    parameters.parameter_stimulus["onset"] = 5000
 
     # init & run
     sim = tools.init(

@@ -26,11 +26,11 @@ def init(parameter_simulation,parameter_model,parameter_connection_between_regio
     parameter_simulation['seed'] = my_seed
     rgn.seed(parameter_simulation['seed'])
     if 'Damien' in parameter_model.keys() and parameter_model['Damien']:
-        from . import Zerlaut_Damien as model
+        import tvb_model_reference.src.Zerlaut_Damien as model
     elif parameter_model['matteo']:
-        from . import Zerlaut_matteo as model
+        import tvb_model_reference.src.Zerlaut_matteo as model
     else:
-        from . import Zerlaut as model
+        import tvb_model_reference.src.Zerlaut as model
 
     ## Model
     if parameter_model['order'] == 1:
@@ -199,7 +199,7 @@ def init(parameter_simulation,parameter_model,parameter_connection_between_regio
 
     #save the parameters in on file
     if not os.path.exists(parameter_simulation['path_result']):
-        os.mkdir(parameter_simulation['path_result'])
+        os.makedirs(parameter_simulation['path_result'],exist_ok=True)
     f = open(parameter_simulation['path_result']+'/parameter.json',"w")
     f.write("{\n")
     for name,dic in [('parameter_simulation',parameter_simulation),
@@ -255,56 +255,20 @@ def run_simulation(simulator, time, parameter_simulation,parameter_monitor):
         save_result.append([])
     # run the simulation
     count = 0
-    # ---------zyz修改，用于测试----------------------
-    # ===== LOAD STIM TIMES =====
-    stim_times = np.load(
-        "/Users/zhangyuanzhuo/PycharmProjects/hybrid_brain_mac1/runs_tvb_be_sigma/baseline_240s_cut_20/sid_0_be_60.00_s_0.500_gee_0.400_sd_1/be60.00_s0.50_gee0.40_sd1/stim_times.npy")
     for result in simulator(simulation_length=time):
-
-
-
-        # baseline input
-        baseline_input = 0.000315
-
-        # stimulation amplitude
-        stim_amp = 0.00039
-
-        # pulse width (ms)
-        pulse_width = 5.0
-
-
-        # 当前时间
-        current_t = float(result[0][0])
-
-        # 是否接近某个 stim_time
-        is_stim = np.any(np.abs(stim_times - current_t) < pulse_width)
-
-        # ===== dynamic stimulation =====
-        if is_stim:
-
-            simulator.model.external_input_ex_ex = np.array([stim_amp])
-
-        else:
-
-            simulator.model.external_input_ex_ex = np.array([baseline_input])
-
-        # ===== original save =====
         for i in range(nb_monitor):
-
             if result[i] is not None:
-                    save_result[i].append(result[i])
-        #-------------------------------------------------
-
+                save_result[i].append(result[i])
         #save the result in file
         if result[0][0] >= parameter_simulation['save_time']*(count+1): #check if the time for saving at some time step
             print('simulation time :'+str(result[0][0])+'\r')
-            np.save(parameter_simulation['path_result']+'/step_'+str(count)+'.npy',np.array(save_result, dtype=object))
+            #np.save(parameter_simulation['path_result']+'/step_'+str(count)+'.npy',save_result)
             save_result =[]
             for i in range(nb_monitor):
                 save_result.append([])
             count +=1
     # save the last part
-    np.save(parameter_simulation['path_result']+'/step_'+str(count)+'.npy',np.array(save_result, dtype=object))
+    np.save(parameter_simulation['path_result']+'/step_'+str(count)+'.npy',save_result)
 
 def get_result(path,time_begin,time_end):
     '''
@@ -443,9 +407,9 @@ def print_bistability(parameter_model,show=True):
     :return: nothing
     '''
     if parameter_model['matteo']:
-        from . import Zerlaut_matteo as model
+        import tvb_model_reference.src.Zerlaut_matteo as model
     else:
-        from . import Zerlaut as model
+        import tvb_model_reference.src.Zerlaut as model
     ## Model
     if parameter_model['order'] == 1:
         model = model.Zerlaut_adaptation_first_order(variables_of_interest='E I W_e W_i'.split())

@@ -1,5 +1,3 @@
-#此脚本是5月19日复制，下一步是新建了build_stim_waveform.py文件，想要修改该脚本的刺激模式，该脚本是最初的控制刺激的地方
-#理想情况下，修改后将废弃最初的控制刺激的办法
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -1651,32 +1649,61 @@ def tvb_sim_single_ve_with_sync(
     parameters.parameter_stimulus["weights"] = [0.0] * nregions
     parameters.parameter_stimulus["variables"] = [0]
     parameters.parameter_stimulus["onset"] = 1e9
-    #打开刺激
-    # parameters.parameter_stimulus["tau"] = 1.0
-    # parameters.parameter_stimulus["T"] = 1e9
-    # weights = [0.0] * nregions #zyz修改，设定强度为0.5
-    # weights[region_idx] = 0.0009
-    # parameters.parameter_stimulus["weights"] = weights
-    # parameters.parameter_stimulus["variables"] = [0]
-    #parameters.parameter_stimulus["onset"] = 5000
-    #zyz修改，以前是onset=5000------------------------------
-    if stim_times is not None and len(stim_times) > 0:
+    #---------------zyz修改--------------------------------
+    # ===== LOAD CUSTOM STIM WAVEFORM =====
 
-        parameters.parameter_stimulus["onset"] = float(stim_times[0])
-
-        print()
-        print("USING PHASE-LOCKED STIMULATION")
-        print("stim onset =", stim_times[0])
-
-    else:
-
-        parameters.parameter_stimulus["onset"] = 5000
-
-        print()
-        print("USING DEFAULT STIMULATION")
-        print("stim onset = 5000 ms")
-#----------------------------------------------------------------------------
-
+#     stim_path = Path("stim_waveform.npy")
+#
+#     if stim_path.exists():
+#
+#         stim_wave = np.load(stim_path)
+#
+#         print()
+#         print("===== CUSTOM STIM =====")
+#         print("waveform length =", len(stim_wave))
+#         print("max amp =", np.max(stim_wave))
+#         print("=======================")
+#         print()
+#
+#     else:
+#
+#         stim_wave = None
+#     if stim_times is not None and len(stim_times) > 0:
+#
+#         parameters.parameter_stimulus["onset"] = float(stim_times[0])
+#
+#         print()
+#         print("USING PHASE-LOCKED STIMULATION")
+#         print("stim onset =", stim_times[0])
+#
+#     else:
+#
+#         parameters.parameter_stimulus["onset"] = 5000
+#
+#         print()
+#         print("USING DEFAULT STIMULATION")
+#         print("stim onset = 5000 ms")
+# #----------------------zyz修改-----------------------------------------------------
+#     # ===== CUSTOM TEMPORAL STIMULUS =====
+#
+#     if stim_wave is not None:
+#         parameters.parameter_stimulus["tau"] = 1.0
+#         parameters.parameter_stimulus["T"] = 1e9
+#
+#         weights = [0.0] * nregions
+#
+#         # 你的刺激脑区
+#         weights[region_idx] = 0.0009
+#
+#         parameters.parameter_stimulus["weights"] = weights
+#         parameters.parameter_stimulus["variables"] = [0]
+#
+#         # onset 无意义，但 TVB 需要
+#         parameters.parameter_stimulus["onset"] = 0.0
+#
+#         # 最关键：
+#         parameters.parameter_stimulus["custom_waveform"] = stim_wave
+#----------------------------------------------------------
     # init & run
     sim = tools.init(
         parameters.parameter_simulation,

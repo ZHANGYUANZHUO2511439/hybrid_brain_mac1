@@ -134,7 +134,7 @@ class Zerlaut_adaptation_first_order(Model):
 
     b_e = NArray(
         label=":math:`Excitatory b`",
-        default=numpy.array([60.0]),
+        default=numpy.array([0.0]),
         domain=Range(lo=0.0, hi=150.0, step=1.0),
         doc="""Excitatory adaptation current increment [pA]""")
 

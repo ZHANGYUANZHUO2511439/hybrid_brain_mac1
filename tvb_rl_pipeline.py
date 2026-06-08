@@ -53,7 +53,7 @@ def tvb_sim_single(
 这里为了骨架先 from tvb_sim import tvb_sim_single，
 你只要保证函数签名一致即可。
 """
-from tvb_stim import tvb_sim_single
+from tvb_stim_copy_5_19 import tvb_sim_single
 
 
 # ============ 数据容器 ============

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#此副本用于保存，下一步在修改pipeline，用于改变刺激模式和在上升沿加刺激
+#此副本用于保存，下一步正在尝试在第60秒作为第一个波加刺激
 """
 TVB 参数扫描 + BO 标定 + 可视化
 
@@ -296,68 +296,9 @@ def sweep_be_sigma_for_subject_veviw(
                 raise ValueError("❌ 没有找到仿真输出目录")
 
             folder = os.path.join(run_dir, subdirs[0])
+
             # detect
             peak_times, trough_times = detect_from_file(folder)
-
-            # -----------------------------
-            # 120s后的第一个波峰单次刺激
-            # -----------------------------
-            TARGET_TIME = 120.0  # seconds
-
-            candidate_peaks = peak_times[peak_times > TARGET_TIME]
-
-            if len(candidate_peaks) > 0:
-                stim_times = np.array([candidate_peaks[0]])
-            else:
-                stim_times = np.array([])
-
-            # 单位转换：s -> ms
-            stim_times = stim_times * 1000.0
-
-            # 保存 stimulation trigger times
-            np.save(
-                os.path.join(folder, "stim_times.npy"),
-                stim_times
-            )
-
-            print("target time =", TARGET_TIME, "s")
-
-            if len(stim_times) > 0:
-                print("single stim at =", stim_times[0] / 1000.0, "s")
-            else:
-                print("WARNING: no peak found after target time")
-
-
-            # -----------------------------
-            # 只从60s后的paek开始刺激，5.27修改
-            # -----------------------------
-            # #detect
-            #peak_times, trough_times = detect_from_file(folder)
-            # STIM_START = 60.0  # seconds
-            # stim_times = peak_times[peak_times > STIM_START]
-            #
-            # # 单位转换：s -> ms
-            # stim_times = stim_times * 1000.0
-            #
-            # # 保存 stimulation trigger times
-            # np.save(
-            #     os.path.join(folder, "stim_times.npy"),
-            #     stim_times
-            # )
-            #
-            # print("stim start =", STIM_START, "s")
-            # if len(stim_times) > 0:
-            #     print("first stim =", stim_times[0] / 1000.0, "s")
-            # else:
-            #     print("WARNING: no stim_times found")
-
-
-            # ====================================================
-            # 原始peak不变！
-            # 后面分析仍然使用完整peak
-            # ====================================================
-
-
 
             # 计算 Δt
             dt = compute_dt(peak_times, trough_times)
@@ -375,6 +316,11 @@ def sweep_be_sigma_for_subject_veviw(
 
             #print("peaks:", peak_times[:5])
 
+            # ===== 只有成功才做 detect =====
+            peak_times, trough_times = detect_from_file(folder)
+            dt = compute_dt(peak_times, trough_times)
+
+            print("mean dt:", dt.mean())
 
             # ⭐ 保存
             np.save(os.path.join(folder, "peak_times.npy"), peak_times)

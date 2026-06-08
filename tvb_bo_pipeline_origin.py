@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#此副本用于保存，下一步在修改pipeline，用于改变刺激模式和在上升沿加刺激
 """
 TVB 参数扫描 + BO 标定 + 可视化
 
@@ -20,7 +19,6 @@ import pandas as pd
 #zyz修改，删除绘制csv文件部分后脚本之间没有连接起来，此import用于连接，如果要绘制csv文件需要删掉这部分import，前半段panda也需要删除
 
 from detect_peaks import detect_from_file, compute_dt
-from tvb_stim_copy_5_19 import tvb_sim_single_ve_with_sync
 
 
 def sweep_be_sigma_for_subject(
@@ -296,75 +294,14 @@ def sweep_be_sigma_for_subject_veviw(
                 raise ValueError("❌ 没有找到仿真输出目录")
 
             folder = os.path.join(run_dir, subdirs[0])
+
             # detect
             peak_times, trough_times = detect_from_file(folder)
-
-            # -----------------------------
-            # 120s后的第一个波峰单次刺激
-            # -----------------------------
-            TARGET_TIME = 120.0  # seconds
-
-            candidate_peaks = peak_times[peak_times > TARGET_TIME]
-
-            if len(candidate_peaks) > 0:
-                stim_times = np.array([candidate_peaks[0]])
-            else:
-                stim_times = np.array([])
-
-            # 单位转换：s -> ms
-            stim_times = stim_times * 1000.0
-
-            # 保存 stimulation trigger times
-            np.save(
-                os.path.join(folder, "stim_times.npy"),
-                stim_times
-            )
-
-            print("target time =", TARGET_TIME, "s")
-
-            if len(stim_times) > 0:
-                print("single stim at =", stim_times[0] / 1000.0, "s")
-            else:
-                print("WARNING: no peak found after target time")
-
-
-            # -----------------------------
-            # 只从60s后的paek开始刺激，5.27修改
-            # -----------------------------
-            # #detect
-            #peak_times, trough_times = detect_from_file(folder)
-            # STIM_START = 60.0  # seconds
-            # stim_times = peak_times[peak_times > STIM_START]
-            #
-            # # 单位转换：s -> ms
-            # stim_times = stim_times * 1000.0
-            #
-            # # 保存 stimulation trigger times
-            # np.save(
-            #     os.path.join(folder, "stim_times.npy"),
-            #     stim_times
-            # )
-            #
-            # print("stim start =", STIM_START, "s")
-            # if len(stim_times) > 0:
-            #     print("first stim =", stim_times[0] / 1000.0, "s")
-            # else:
-            #     print("WARNING: no stim_times found")
-
-
-            # ====================================================
-            # 原始peak不变！
-            # 后面分析仍然使用完整peak
-            # ====================================================
-
-
 
             # 计算 Δt
             dt = compute_dt(peak_times, trough_times)
 
             print("mean dt:", dt.mean())
-
-
             # ===== 到这里结束检测波峰波谷分布（用于对比刺激产生的效果是否真正产生相位提前） =====
             #zyz修改，以下部分是检测波峰波谷
             #from detect_peaks import detect_from_file
@@ -375,27 +312,23 @@ def sweep_be_sigma_for_subject_veviw(
 
             #print("peaks:", peak_times[:5])
 
-
-            # ⭐ 保存
-            np.save(os.path.join(folder, "peak_times.npy"), peak_times)
-            np.save(os.path.join(folder, "trough_times.npy"), trough_times)
-            np.save(os.path.join(folder, "dt.npy"), dt)
-
-            # 判断 simulation 是否成功
+            # =====函数返回 None =====
             if res is None:
                 rows.append({
                     "sid": subj.sid,
+                    "axis_joint": float(subj.axis_joint),
                     "b_e": float(be),
                     "sigma": float(s),
                     "g_ee": float(gee_fixed),
                     "ok": False,
-                    "reason": "res is None",
+                    "reason": "tvb_sim_single_ve_with_sync returned None",
                 })
                 continue
 
             if not res.get("ok", False):
                 rows.append({
                     "sid": subj.sid,
+                    "axis_joint": float(subj.axis_joint),
                     "b_e": float(be),
                     "sigma": float(s),
                     "g_ee": float(gee_fixed),
@@ -403,17 +336,7 @@ def sweep_be_sigma_for_subject_veviw(
                     "reason": res.get("reason", "unknown"),
                 })
                 continue
-
-            rows.append({
-                "sid": subj.sid,
-                "axis_joint": float(subj.axis_joint),
-                "b_e": float(be),
-                "sigma": float(s),
-                "g_ee": float(gee_fixed),
-                "ok": True,
-                "mean_dt": float(dt.mean()),
-            })
-#zyz修改，这一段会影响detect，以及下部分rows，rows是作表用的，是我手动注释的
+#zyz修改，这一段会影响detect，以及下部分rows，rows是作表用的
             # single = res["single_region_stats"]
             # glob   = res["global_stats"]
             # sync   = res["synchrony"]
@@ -1294,8 +1217,8 @@ def demo_scan_be_sigma_for_veviw_():
     gee_fixed = 0.4
 
     # ====== 关键改动 1：延长时长 + 更充分的 warm-up ======
-    sim_dur_s = 240.0
-    cut_transient_s = 20.0
+    sim_dur_s = 24.0
+    cut_transient_s = 5.0
 
     # ====== 关键改动 2：多 seed 重复，以检验吸引性/多稳态 ======
     seeds = [ 1 ]   # 你也可以用 10 个

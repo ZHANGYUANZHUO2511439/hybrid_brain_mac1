@@ -29,7 +29,7 @@ for pkg in packages:
 
 print("\n[3/6] 检查项目模块")
 try:
-    import tvb_stim
+    import tvb_stim_copy_5_19
     print("  ✅ tvb_stim: 导入成功")
     print(f"    可用函数: {[x for x in dir(tvb_stim) if not x.startswith('_')][:10]}...")
 except ImportError as e:
@@ -89,7 +89,7 @@ if not found_data:
 
 print("\n[5/6] 尝试导入主模块")
 try:
-    import tvb_bo_pipeline as tbp
+    import tvb_bo_pipeline_with_phase_stim as tbp
     print("  ✅ tvb_bo_pipeline: 导入成功")
     
     # 检查可用的函数

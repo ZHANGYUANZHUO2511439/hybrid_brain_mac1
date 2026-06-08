@@ -25,7 +25,7 @@ parameters.parameter_connection_between_region['path'] = \
 state = "synchronous"  # or "asynchronous"
 if state == "synchronous":
     parameters.parameter_simulation['path_result'] = './result/DEMO_sync/'
-    parameters.parameter_model['b_e'] = 60.0
+    parameters.parameter_model['b_e'] = 0.0
 else:
     parameters.parameter_simulation['path_result'] = './result/DEMO_async/'
     parameters.parameter_model['b_e'] = 0.0

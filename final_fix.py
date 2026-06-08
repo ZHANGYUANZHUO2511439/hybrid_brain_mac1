@@ -54,7 +54,7 @@ except Exception as e:
 
 print("\n现在尝试导入tvb_stim...")
 try:
-    import tvb_stim
+    import tvb_stim_copy_5_19
     print("✅ tvb_stim 导入成功")
     
     # 列出函数
